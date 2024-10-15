@@ -21,13 +21,13 @@ export default function Home() {
           </Typography>
           <SignedOut>
             <Button 
-              color="inherit" 
+              color="inherit" href="/sign-in" 
               sx={{ textTransform: 'none', fontSize: '1.2rem', fontWeight: 'bold', borderRadius: '20px', padding: '8px 16px' }}
             >
               Login
             </Button>
             <Button 
-              color="inherit" 
+              color="inherit" href="/sign-up"
               sx={{ textTransform: 'none', fontSize: '1.2rem', fontWeight: 'bold', borderRadius: '20px', padding: '8px 16px' }}
             >
               Sign Up
