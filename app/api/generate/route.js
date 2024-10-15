@@ -19,10 +19,12 @@ Remember, the goal is to facilitate effective learning and retention of informat
 
 Return in the following JSON format:
 {
-  "flashcards": [{
-    "front": str,
-    "back": str
-    }]
+  "flashcards": [
+    {
+        "front": str,
+        "back": str
+        }
+    ]
 }
 `
 
