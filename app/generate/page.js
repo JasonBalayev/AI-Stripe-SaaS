@@ -59,7 +59,7 @@ export default function Generate() {
             }
             else{
                 collections.push({name})
-                batch.set(userDocRef, {flashcards: collection}, {merge: true})
+                batch.set(userDocRef, {flashcards: collections}, {merge: true})
             }
         }
         else {
