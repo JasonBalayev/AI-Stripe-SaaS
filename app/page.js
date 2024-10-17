@@ -5,11 +5,13 @@ import { SignedIn, SignedOut, UserButton, useAuth } from "@clerk/nextjs";
 import { Container, AppBar, Toolbar, Typography, Button, Box, Grid, Snackbar, Alert } from '@mui/material';
 import Head from "next/head";
 import { useState } from 'react'; 
+import { useRouter } from 'next/navigation'; // Import useRouter
 
 export default function Home() {
   const { isLoaded, userId } = useAuth(); 
   const [error, setError] = useState(''); 
   const [openSnackbar, setOpenSnackbar] = useState(false); 
+  const router = useRouter(); // Initialize useRouter
 
   const handleSubmit = async (plan) => {
     if (!isLoaded) {
@@ -40,7 +42,7 @@ export default function Home() {
     }
 
     const stripe = await getStripe()
-    const {error} = await stripe.redirectToCheckout({
+    const { error } = await stripe.redirectToCheckout({
       sessionId: checkoutSessionJson.id,
     })
     if (error) {
@@ -48,9 +50,24 @@ export default function Home() {
     }
   }
 
+  // Updated handleGetStarted function
+  const handleGetStarted = () => {
+    if (!isLoaded) {
+      return;
+    }
+
+    if (!userId) {
+      setError('You must be logged in to get started.');
+      setOpenSnackbar(true);
+      return;
+    }
+
+    router.push('/generate');
+  }
+
   return (
     // Main container for the entire page
-    <Container maxWidth="lg" sx={{ backgroundColor: "#f5f5f5", minHeight: '100vx', paddingBottom: 5 }}>
+    <Container maxWidth="lg" sx={{ backgroundColor: "#f5f5f5", minHeight: '100vh', paddingBottom: 5 }}>
       <Head>
         <title>Flashcard SaaS</title>
         <meta name="description" content="Create flashcards from your text" />
@@ -77,6 +94,21 @@ export default function Home() {
             </Button>
           </SignedOut>
           <SignedIn>
+            {/* Added Saved Collections Button */}
+            <Button 
+              color="inherit" 
+              sx={{ 
+                textTransform: 'none', 
+                fontSize: '1.2rem', 
+                fontWeight: 'bold', 
+                borderRadius: '20px', 
+                padding: '8px 16px', 
+                marginRight: 2 
+              }}
+              onClick={() => router.push('/flashcards')}
+            >
+              Saved Collections
+            </Button>
             <UserButton />
           </SignedIn>
         </Toolbar>
@@ -87,15 +119,19 @@ export default function Home() {
         <Typography variant="h2" gutterBottom sx={{ fontWeight: 'bold', color: '#333' }}>
           Welcome to Flashcard SaaS
         </Typography>
+        <Typography variant="h4" gutterBottom sx={{ color: 'grey' }}>
+          Made by Jason Balayev 
+        </Typography>
         <Typography variant="h5" gutterBottom sx={{ color: '#666' }}>
-          The easiest way to create flashcards from your text
+          The easiest way to create flashcards using AI based on your prompt
         </Typography>
         <Button 
           variant="contained" 
           color="primary" 
           sx={{ mt: 2, px: 4, py: 1.5, borderRadius: '30px', fontSize: '1.2rem', fontWeight: 'bold' }}
+          onClick={handleGetStarted} // Updated onClick handler
         >
-          Get Started
+          Generate Flashsets
         </Button>
       </Box>
 
@@ -108,7 +144,7 @@ export default function Home() {
           {/* Feature 1 */}
           <Grid item xs={12} md={4}>
             <Typography variant="h6" gutterBottom sx={{ color: '#1976d2', fontWeight: 'bold' }}>
-              Easy Test Input
+              Easy Text Input
             </Typography>
             <Typography sx={{ color: '#666' }}>
               Simply input your text and let our software do the rest. Creating flashcards has never been easier.
@@ -156,7 +192,7 @@ export default function Home() {
               }
             }}>
               <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', color: '#1976d2' }}>
-                Basic
+                Basic *WIP*
               </Typography>
               <Typography variant="h6" gutterBottom>$5 / month</Typography>
               <Typography sx={{ color: '#666' }}>
@@ -168,7 +204,7 @@ export default function Home() {
                 sx={{ mt: 2, px: 4, py: 1.5, fontSize: '1rem', fontWeight: 'bold', borderRadius: '30px' }}
                 onClick={() => handleSubmit('basic')}
               >
-                Choose basic
+                Choose Basic
               </Button>
             </Box>
           </Grid>
@@ -188,11 +224,11 @@ export default function Home() {
               }
             }}>
               <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', color: '#1976d2' }}>
-                Pro
+                Pro *WIP*
               </Typography>
               <Typography variant="h6" gutterBottom>$10 / month</Typography>
               <Typography sx={{ color: '#666' }}>
-                Unlimited flashcards and storage, with priority support.
+                Unlimited flashcards and storage, with priority support. 
               </Typography>
               <Button 
                 variant="contained" 
@@ -200,14 +236,14 @@ export default function Home() {
                 sx={{ mt: 2, px: 4, py: 1.5, fontSize: '1rem', fontWeight: 'bold', borderRadius: '30px' }}
                 onClick={() => handleSubmit('pro')}
               >
-                Choose pro
+                Choose Pro
               </Button>
             </Box>
           </Grid>
         </Grid>
       </Box>
 
-      {/* Error Membership */}
+      {/* Error Snackbar */}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}
