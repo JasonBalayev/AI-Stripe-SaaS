@@ -1,14 +1,27 @@
 'use client'
 
 import getStripe from "@/utils/get-stripe";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { Container, AppBar, Toolbar, Typography, Button, Box, Grid } from '@mui/material';
+import { SignedIn, SignedOut, UserButton, useAuth } from "@clerk/nextjs";
+import { Container, AppBar, Toolbar, Typography, Button, Box, Grid, Snackbar, Alert } from '@mui/material';
 import Head from "next/head";
-
+import { useState } from 'react'; 
 
 export default function Home() {
+  const { isLoaded, userId } = useAuth(); 
+  const [error, setError] = useState(''); 
+  const [openSnackbar, setOpenSnackbar] = useState(false); 
 
   const handleSubmit = async (plan) => {
+    if (!isLoaded) {
+      return;
+    }
+
+    if (!userId) {
+      setError('You must be logged in to purchase a plan.');
+      setOpenSnackbar(true);
+      return;
+    }
+
     const checkoutSession = await fetch('/api/checkout_session', {
       method: 'POST',
       headers: {
@@ -27,13 +40,14 @@ export default function Home() {
     }
 
     const stripe = await getStripe()
-      const {error} = await stripe.redirectToCheckout({
-        sessionId: checkoutSessionJson.id,
-      })
-      if (error) {
-        console.warn(error.message)
-      }
+    const {error} = await stripe.redirectToCheckout({
+      sessionId: checkoutSessionJson.id,
+    })
+    if (error) {
+      console.warn(error.message)
+    }
   }
+
   return (
     // Main container for the entire page
     <Container maxWidth="lg" sx={{ backgroundColor: "#f5f5f5", minHeight: '100vx', paddingBottom: 5 }}>
@@ -154,7 +168,6 @@ export default function Home() {
                 sx={{ mt: 2, px: 4, py: 1.5, fontSize: '1rem', fontWeight: 'bold', borderRadius: '30px' }}
                 onClick={() => handleSubmit('basic')}
               >
-
                 Choose basic
               </Button>
             </Box>
@@ -193,6 +206,18 @@ export default function Home() {
           </Grid>
         </Grid>
       </Box>
+
+      {/* Error Membership */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setOpenSnackbar(false)} severity="warning" sx={{ width: '100%' }}>
+          {error}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }
