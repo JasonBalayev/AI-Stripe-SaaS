@@ -5,13 +5,13 @@ import { SignedIn, SignedOut, UserButton, useAuth } from "@clerk/nextjs";
 import { Container, AppBar, Toolbar, Typography, Button, Box, Grid, Snackbar, Alert } from '@mui/material';
 import Head from "next/head";
 import { useState } from 'react'; 
-import { useRouter } from 'next/navigation'; // Import useRouter
+import { useRouter } from 'next/navigation'; 
 
 export default function Home() {
   const { isLoaded, userId } = useAuth(); 
   const [error, setError] = useState(''); 
   const [openSnackbar, setOpenSnackbar] = useState(false); 
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter(); 
 
   const handleSubmit = async (plan) => {
     if (!isLoaded) {
