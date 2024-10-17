@@ -1,20 +1,23 @@
 'use client'
 
-import Image from "next/image";
 import getStripe from "@/utils/get-stripe";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { Container, AppBar, Toolbar, Typography, Button, Box, Grid } from '@mui/material';
 import Head from "next/head";
 
+
 export default function Home() {
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (plan) => {
     const checkoutSession = await fetch('/api/checkout_session', {
       method: 'POST',
       headers: {
-        origin: 'http;//localhost:3000',
+        'Content-Type': 'application/json',
       },
-    })
+      body: JSON.stringify({
+        plan, 
+      }),
+    });
 
     const checkoutSessionJson = await checkoutSession.json()
 
@@ -33,7 +36,7 @@ export default function Home() {
   }
   return (
     // Main container for the entire page
-    <Container maxWidth="lg" sx={{ backgroundColor: "#f5f5f5", minHeight: '100vh', paddingBottom: 5 }}>
+    <Container maxWidth="lg" sx={{ backgroundColor: "#f5f5f5", minHeight: '100vx', paddingBottom: 5 }}>
       <Head>
         <title>Flashcard SaaS</title>
         <meta name="description" content="Create flashcards from your text" />
@@ -149,7 +152,9 @@ export default function Home() {
                 variant="contained" 
                 color="primary" 
                 sx={{ mt: 2, px: 4, py: 1.5, fontSize: '1rem', fontWeight: 'bold', borderRadius: '30px' }}
+                onClick={() => handleSubmit('basic')}
               >
+
                 Choose basic
               </Button>
             </Box>
@@ -180,7 +185,7 @@ export default function Home() {
                 variant="contained" 
                 color="primary" 
                 sx={{ mt: 2, px: 4, py: 1.5, fontSize: '1rem', fontWeight: 'bold', borderRadius: '30px' }}
-                onClick={handleSubmit}
+                onClick={() => handleSubmit('pro')}
               >
                 Choose pro
               </Button>
