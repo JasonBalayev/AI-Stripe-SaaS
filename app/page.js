@@ -174,7 +174,7 @@ export default function Home() {
           Unlock Your Learning Potential with Flashcard SaaS
         </Typography>
         <Typography variant="h5" gutterBottom sx={{ color: '#666' }}>
-          Effortlessly create flashcards from your own study material using our AI-powered platform.
+          Effortlessly create flashcards from your own study material using my AI-powered platform.
         </Typography>
         <Typography variant="h6" gutterBottom sx={{ color: 'grey', fontStyle: 'italic' }}>
           *Currently in Beta - All paid features are in test mode!*
