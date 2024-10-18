@@ -71,7 +71,7 @@ export default function Flashcards() {
       const userDocRef = doc(db, 'users', user.id);
       const userDocSnap = await getDoc(userDocRef);
       if (userDocSnap.exists()) {
-        const collections = userDocSnap.data().flashcards || [];d
+        const collections = userDocSnap.data().flashcards || [];
         const updatedCollections = collections.filter(col => col.name !== collectionName);
         await setDoc(userDocRef, { flashcards: updatedCollections }, { merge: true });
         const collectionRef = collection(userDocRef, collectionName);
@@ -99,52 +99,109 @@ export default function Flashcards() {
         <meta name="description" content="View your flashcard collections" />
       </Head>
 
-      {/* Header / Navigation Bar */}
-      <AppBar position="static" sx={{ backgroundColor: '#1976d2', mb: 4 }}>
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold', letterSpacing: '0.05em' }}>
+      {/* Enhanced AppBar / Navigation Bar */}
+      <AppBar 
+        position="fixed" 
+        sx={{ 
+          background: 'linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)', 
+          width: '100%', 
+          top: 0, 
+          left: 0, 
+          mb: 4, 
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)' 
+        }}
+      >
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 2 }}>
+          {/* Left Side: Logo */}
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 'bold', 
+              letterSpacing: '0.05em', 
+              color: '#fff', 
+              textShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
+              userSelect: 'none' 
+            }}
+          >
             Flashcard SaaS
           </Typography>
-          <Button 
-            color="inherit" 
-            sx={{ textTransform: 'none', fontSize: '1rem', fontWeight: 'bold', marginRight: 2 }}
-            onClick={() => router.push('/')}
-          >
-            Home
-          </Button>
-          <SignedOut>
+          {/* Right Side: Navigation Buttons */}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {/* Home Button */}
             <Button 
-              color="inherit" href="/sign-in" 
-              sx={{ textTransform: 'none', fontSize: '1rem', fontWeight: 'bold', marginRight: 1 }}
+              sx={{ 
+                px: 3, 
+                py: 1.2, 
+                borderRadius: '25px', 
+                transition: 'all 0.3s', 
+                '&:hover': { backgroundColor: '#5e35b1', transform: 'scale(1.05)' }, 
+                color: '#fff',
+                fontSize: '1.2rem', // Increase font size
+                marginRight: 2,     // Move the button a bit to the left
+              }}
+              onClick={() => router.push('/')}
             >
-              Login
+              Home
             </Button>
-            <Button 
-              color="inherit" href="/sign-up"
-              sx={{ textTransform: 'none', fontSize: '1rem', fontWeight: 'bold' }}
-            >
-              Sign Up
-            </Button>
-          </SignedOut>
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
+            <SignedOut>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Button 
+                  sx={{ 
+                    px: 3, py: 1.2, borderRadius: '25px', 
+                    transition: 'all 0.3s', 
+                    '&:hover': { backgroundColor: '#5e35b1', transform: 'scale(1.05)' }, 
+                    color: '#fff',
+                    fontSize: '1.2rem',
+                  }}
+                  href="/sign-in"
+                >
+                  Login
+                </Button>
+                <Button 
+                  sx={{ 
+                    px: 3, py: 1.2, borderRadius: '25px', 
+                    transition: 'all 0.3s', 
+                    '&:hover': { backgroundColor: '#5e35b1', transform: 'scale(1.05)' }, 
+                    color: '#fff',
+                    fontSize: '1.2rem',
+                  }}
+                  href="/sign-up"
+                >
+                  Sign Up
+                </Button>
+              </Box>
+            </SignedOut>
+            <SignedIn>
+              <Box sx={{ ml: 2 }}>
+                <UserButton />
+              </Box>
+            </SignedIn>
+          </Box>
         </Toolbar>
       </AppBar>
 
       {/* Flashcard Collections Content */}
-      <Box sx={{ mt: 4 }}>
+      <Box sx={{ mt: 12 }}>
         <Typography variant='h4' sx={{ fontWeight: 'bold', color: '#333', mb: 2 }}>
           Your Flashcard Collections
         </Typography>
 
         {/* Generate Flashcards Button */}
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{ mb: 4, textAlign: 'center' }}>
           <Button 
-            variant="outlined" 
-            color="primary" 
+            variant="contained" 
+            sx={{ 
+              textTransform: 'none', 
+              fontSize: '1.2rem', 
+              fontWeight: 'bold',
+              borderRadius: '30px',
+              background: 'linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)',
+              color: '#fff',
+              px: 4, py: 1.5,
+              transition: 'all 0.3s',
+              '&:hover': { transform: 'scale(1.05)', background: '#5e35b1' }
+            }}
             onClick={() => router.push('/generate')}
-            sx={{ textTransform: 'none', fontSize: '1rem', fontWeight: 'bold' }}
           >
             Generate Flashcards
           </Button>
@@ -154,7 +211,17 @@ export default function Flashcards() {
           <Grid container spacing={3}>
             {flashcards.map((flashcard, index) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                <Card sx={{ height: '100%', position: 'relative' }}>
+                <Card sx={{ 
+                  height: '100%', position: 'relative', 
+                  border: '2px solid #6a11cb',  // Add colored border to flashcards
+                  borderRadius: '8px',
+                  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                  transition: 'transform 0.3s ease',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: '0px 6px 16px rgba(0, 0, 0, 0.2)'
+                  }
+                }}>
                   <CardActionArea 
                     onClick={() => handleCardClick(flashcard.name)}
                     sx={{ height: '100%' }}

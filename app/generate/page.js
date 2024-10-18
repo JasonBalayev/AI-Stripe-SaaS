@@ -3,7 +3,7 @@
 import { useUser, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import { db } from '@/firebase';
 import { 
-  Box, Container, TextField, Typography, Paper, Button, Grid, CardActionArea, CardContent, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Card, AppBar, Toolbar, Snackbar, Alert 
+  Box, Container, TextField, Typography, Paper, Button, Grid, CardActionArea, CardContent, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Card, AppBar, Toolbar, Snackbar, Alert, CircularProgress 
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -13,10 +13,11 @@ import Head from 'next/head';
 export default function Generate() {
   const { isLoaded, isSignedIn, user } = useUser();
   const [text, setText] = useState('');
-  const [flashcards, setFlashcards] = useState([]); // Initialize flashcards state
-  const [flipped, setFlipped] = useState({}); // Initialize flipped state
+  const [flashcards, setFlashcards] = useState([]); 
+  const [flipped, setFlipped] = useState({});
   const [name, setName] = useState('');
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false); 
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const router = useRouter();
@@ -33,15 +34,18 @@ export default function Generate() {
       return;
     }
 
+    setLoading(true); // Start loading indicator
+
     fetch('/api/generate', {
       method: 'POST',
-      body: JSON.stringify({ text }), // Make sure to send data in JSON format
+      body: JSON.stringify({ text }), // Send data in JSON format
       headers: {
         'Content-Type': 'application/json',
       }
     })
       .then((res) => res.json())
       .then((data) => {
+        setLoading(false); // Stop loading indicator
         if (Array.isArray(data)) {
           setFlashcards(data); // Expecting an array of flashcards
         } else {
@@ -50,6 +54,7 @@ export default function Generate() {
         }
       })
       .catch((err) => {
+        setLoading(false); // Stop loading indicator
         setError('An error occurred while generating flashcards.');
         setOpenSnackbar(true);
       });
@@ -105,42 +110,92 @@ export default function Generate() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ backgroundColor: "#f5f5f5", minHeight: '100vh', paddingBottom: 5 }}>
+    <Container maxWidth="lg" sx={{ backgroundColor: "#f5f5f5", minHeight: '100vh', paddingTop: '80px', paddingBottom: 5 }}>
       <Head>
         <title>Generate Flashcards Using AI</title>
         <meta name="description" content="Generate flashcards from your text" />
       </Head>
 
-      {/* Header / Navigation Bar */}
-      <AppBar position="static" sx={{ backgroundColor: '#1976d2', mb: 4 }}>
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold', letterSpacing: '0.05em' }}>
+      {/* Enhanced AppBar / Navigation Bar */}
+      <AppBar 
+        position="fixed" 
+        sx={{ 
+          background: 'linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)', 
+          width: '100%', 
+          top: 0, 
+          left: 0, 
+          mb: 4, 
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)' 
+        }}
+      >
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 2 }}>
+          {/* Left Side: Logo */}
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 'bold', 
+              letterSpacing: '0.05em', 
+              color: '#fff', 
+              textShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
+              userSelect: 'none',
+            }}
+          >
             Flashcard SaaS
           </Typography>
-          <Button 
-            color="inherit" 
-            sx={{ textTransform: 'none', fontSize: '1rem', fontWeight: 'bold', marginRight: 2 }}
-            onClick={() => router.push('/')}
-          >
-            Home
-          </Button>
-          <SignedOut>
+          {/* Right Side: Navigation Buttons */}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {/* Home Button */}
             <Button 
-              color="inherit" href="/sign-in" 
-              sx={{ textTransform: 'none', fontSize: '1rem', fontWeight: 'bold', marginRight: 1 }}
+              sx={{ 
+                px: 3, 
+                py: 1.2, 
+                borderRadius: '25px', 
+                transition: 'all 0.3s', 
+                '&:hover': { backgroundColor: '#5e35b1', transform: 'scale(1.05)' }, 
+                color: '#fff',
+                fontSize: '1.2rem', // Make the button text bigger
+                marginRight: 2,    // Add margin to move it left
+              }}
+              onClick={() => router.push('/')}
             >
-              Login
+              Home
             </Button>
-            <Button 
-              color="inherit" href="/sign-up"
-              sx={{ textTransform: 'none', fontSize: '1rem', fontWeight: 'bold' }}
-            >
-              Sign Up
-            </Button>
-          </SignedOut>
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
+            <SignedOut>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Button 
+                  sx={{ 
+                    px: 3, py: 1.2, borderRadius: '25px', 
+                    transition: 'all 0.3s', 
+                    '&:hover': { backgroundColor: '#5e35b1', transform: 'scale(1.05)' }, 
+                    color: '#fff',
+                    fontSize: '1.2rem',
+                  }}
+                  href="/sign-in"
+                >
+                  Login
+                </Button>
+                <Button 
+                  sx={{ 
+                    px: 3, py: 1.2, borderRadius: '25px', 
+                    transition: 'all 0.3s', 
+                    '&:hover': { backgroundColor: '#5e35b1', transform: 'scale(1.05)' }, 
+                    color: '#fff',
+                    fontSize: '1.2rem',
+                  }}
+                  href="/sign-up"
+                >
+                  Sign Up
+                </Button>
+              </Box>
+            </SignedOut>
+            <SignedIn>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Box sx={{ ml: 2 }}> {/* Add margin-left to separate from Home button */}
+                  <UserButton />
+                </Box>
+              </Box>
+            </SignedIn>
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -157,38 +212,73 @@ export default function Generate() {
         <Typography variant='h4' sx={{ fontWeight: 'bold', color: '#333', mb: 2 }}>Generate Flashcards Using AI</Typography>
 
         {/* View Saved Flashcards Button */}
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{ mb: 4, textAlign: 'center' }}>
           <Button 
-            variant="outlined" 
-            color="primary" 
+            variant="contained" 
+            sx={{ 
+              textTransform: 'none', 
+              fontSize: '1.2rem', 
+              fontWeight: 'bold',
+              borderRadius: '30px',
+              background: 'linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)',
+              color: '#fff',
+              px: 4, py: 1.5,
+              transition: 'all 0.3s',
+              '&:hover': { transform: 'scale(1.05)', background: '#5e35b1' }
+            }}
             onClick={() => router.push('/flashcards')}
-            sx={{ textTransform: 'none', fontSize: '1rem', fontWeight: 'bold' }}
           >
             View Saved Flashcards
           </Button>
         </Box>
 
-        <Paper sx={{ p: 4, width: '100%', maxWidth: 800 }}>
+        <Paper sx={{ p: 4, width: '100%', maxWidth: 800, borderRadius: '15px', boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)' }}>
           <TextField 
             value={text} 
             onChange={(e) => setText(e.target.value)}
             label="Enter your text here"
+            placeholder="Type or paste your text..."
             fullWidth
             multiline
             rows={6}
             variant='outlined'
             sx={{
               mb: 2,
+              backgroundColor: '#fff',
+              borderRadius: '8px',
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#6a11cb',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#6a11cb',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#6a11cb',
+                },
+              },
+            }}
+            InputProps={{
+              style: { fontSize: '1rem', lineHeight: 1.5 },
+            }}
+            InputLabelProps={{
+              style: { fontSize: '1rem' },
             }}
           />
           <Button
             variant='contained' 
-            color='primary' 
+            sx={{ 
+              py: 1.5, fontSize: '1rem', fontWeight: 'bold',
+              background: 'linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)',
+              color: '#fff',
+              transition: 'all 0.3s',
+              '&:hover': { background: '#5e35b1', transform: 'scale(1.05)' }
+            }}
             onClick={handleSubmit} 
             fullWidth
-            sx={{ py: 1.5, fontSize: '1rem', fontWeight: 'bold' }}
+            disabled={loading}  // Disable the button while loading
           >
-            Generate Flashcards
+            {loading ? <CircularProgress size={24} color="inherit" /> : 'Generate Flashcards'}
           </Button>
         </Paper>
       </Box>
@@ -199,8 +289,18 @@ export default function Generate() {
           <Grid container spacing={3}>
             {flashcards.map((flashcard, index) => (
               <Grid item xs={12} sm={6} md={4} key={index}>
-                <Card sx={{ perspective: '1000px' }}>
-                  <CardActionArea onClick={() => handleCardClick(index)}>
+                <Card sx={{ 
+                  perspective: '1000px', 
+                  border: '2px solid #6a11cb',  // Add colored border to flashcards
+                  borderRadius: '8px',
+                  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                  transition: 'transform 0.3s ease', // Added transition for smooth hover effect
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: '0px 6px 16px rgba(0, 0, 0, 0.2)'
+                  }
+                }}>
+                  <CardActionArea onClick={() => handleCardClick(index)} sx={{ height: '100%' }}>
                     <CardContent
                       sx={{
                         position: 'relative',
@@ -225,7 +325,6 @@ export default function Generate() {
                           alignItems: 'center',
                           backgroundColor: '#fff',
                           borderRadius: '8px',
-                          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
                         }}
                       >
                         <Typography variant='h6' component="div" sx={{ textAlign: 'center', padding: 2 }}>
@@ -248,7 +347,6 @@ export default function Generate() {
                           alignItems: 'center',
                           backgroundColor: '#f0f0f0',
                           borderRadius: '8px',
-                          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
                         }}
                       >
                         <Typography variant='h6' component="div" sx={{ textAlign: 'center', padding: 2 }}>
@@ -264,9 +362,14 @@ export default function Generate() {
           <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
             <Button 
               variant='contained' 
-              color='secondary' 
+              sx={{ 
+                px: 4, py: 1.5, fontSize: '1rem', fontWeight: 'bold', borderRadius: '30px',
+                background: 'linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)',
+                color: '#fff',
+                transition: 'all 0.3s',
+                '&:hover': { transform: 'scale(1.05)', backgroundColor: '#5e35b1' }
+              }}
               onClick={handleOpen}
-              sx={{ px: 4, py: 1.5, fontSize: '1rem', fontWeight: 'bold', borderRadius: '30px' }}
             >
               Save Flashcards
             </Button>

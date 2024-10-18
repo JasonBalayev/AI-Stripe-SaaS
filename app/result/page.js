@@ -38,21 +38,56 @@ const ResultPage = () => {
 
   if (loading){
     return(
-      <Container maxWidth="100vw" sx={{ textAlign: 'center', mt: 4 }}>
-        <CircularProgress/>
-        <Typography variant='h6'>Loading...</Typography>
+      <Container 
+        maxWidth="lg" 
+        sx={{ 
+          textAlign: 'center', 
+          mt: 4, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          minHeight: '100vh'
+        }}
+      >
+        <CircularProgress />
+        <Typography variant='h6' sx={{ mt: 2 }}>Loading...</Typography>
       </Container>
     )
   }
 
   if (error) {
     return(
-      <Container maxWidth="100vw" sx={{ textAlign: 'center', mt: 4 }}>
+      <Container 
+        maxWidth="lg" 
+        sx={{ 
+          textAlign: 'center', 
+          mt: 4, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          minHeight: '100vh'
+        }}
+      >
         <Typography variant='h6'>{error}</Typography>
         <Button 
           variant="contained" 
-          color="primary" 
-          sx={{ mt: 4 }} 
+          sx={{ 
+            mt: 4, 
+            textTransform: 'none', 
+            fontSize: '1.2rem', 
+            fontWeight: 'bold',
+            borderRadius: '30px',
+            background: 'linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)',
+            color: '#fff',
+            px: 4, py: 1.5,
+            transition: 'all 0.3s',
+            '&:hover': { 
+              transform: 'scale(1.05)', 
+              background: '#5e35b1' 
+            }
+          }} 
           onClick={() => router.push('/')}
         >
           Go to Home
@@ -63,26 +98,44 @@ const ResultPage = () => {
 
   return (
     <Container
-      maxWidth="100vw"
+      maxWidth="lg"
       sx={{
         textAlign: 'center',
         mt: 4,
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        minHeight: '100vh'
       }}
     >
       {session.payment_status === 'paid' ? (
         <>
-          <Typography variant="h4">Thank you for purchasing.</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#333' }}>Thank you for purchasing.</Typography>
           <Box sx={{ mt: 2 }}>
             <Typography variant="h6">Session ID: {session_id}</Typography>
-            <Typography variant="body1">
+            <Typography variant="body1" sx={{ color: '#666' }}>
               We have received your payment. You will receive
               an email with the order details shortly.
             </Typography>
           </Box>
           <Button 
             variant="contained" 
-            color="primary" 
-            sx={{ mt: 4 }} 
+            sx={{ 
+              mt: 4, 
+              textTransform: 'none', 
+              fontSize: '1.2rem', 
+              fontWeight: 'bold',
+              borderRadius: '30px',
+              background: 'linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)',
+              color: '#fff',
+              px: 4, py: 1.5,
+              transition: 'all 0.3s',
+              '&:hover': { 
+                transform: 'scale(1.05)', 
+                background: '#5e35b1' 
+              }
+            }} 
             onClick={() => router.push('/')}
           >
             Go to Home
@@ -90,16 +143,29 @@ const ResultPage = () => {
         </>
       ) : (
         <>
-          <Typography variant="h4">Payment Failed.</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#333' }}>Payment Failed.</Typography>
           <Box sx={{ mt: 2 }}>
-            <Typography variant="body1">
+            <Typography variant="body1" sx={{ color: '#666' }}>
               Your payment was not successful. Please try again.
             </Typography>
           </Box>
           <Button 
             variant="contained" 
-            color="primary" 
-            sx={{ mt: 4 }} 
+            sx={{ 
+              mt: 4, 
+              textTransform: 'none', 
+              fontSize: '1.2rem', 
+              fontWeight: 'bold',
+              borderRadius: '30px',
+              background: 'linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)',
+              color: '#fff',
+              px: 4, py: 1.5,
+              transition: 'all 0.3s',
+              '&:hover': { 
+                transform: 'scale(1.05)', 
+                background: '#5e35b1' 
+              }
+            }} 
             onClick={() => router.push('/')}
           >
             Go to Home
