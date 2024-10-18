@@ -12,9 +12,9 @@ import Head from 'next/head';
 
 export default function Generate() {
   const { isLoaded, isSignedIn, user } = useUser();
-  const [flashcards, setFlashcards] = useState([]);
-  const [flipped, setFlipped] = useState([]);
   const [text, setText] = useState('');
+  const [flashcards, setFlashcards] = useState([]); // Initialize flashcards state
+  const [flipped, setFlipped] = useState({}); // Initialize flipped state
   const [name, setName] = useState('');
   const [open, setOpen] = useState(false);
   const [error, setError] = useState('');
@@ -27,7 +27,6 @@ export default function Generate() {
       setOpenSnackbar(true);
       return;
     }
-
     if (!text.trim()) {
       setError('Please enter some text to generate flashcards.');
       setOpenSnackbar(true);
@@ -36,10 +35,20 @@ export default function Generate() {
 
     fetch('/api/generate', {
       method: 'POST',
-      body: text,
+      body: JSON.stringify({ text }), // Make sure to send data in JSON format
+      headers: {
+        'Content-Type': 'application/json',
+      }
     })
       .then((res) => res.json())
-      .then((data) => setFlashcards(data))
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setFlashcards(data); // Expecting an array of flashcards
+        } else {
+          setError('Invalid response from the server.');
+          setOpenSnackbar(true);
+        }
+      })
       .catch((err) => {
         setError('An error occurred while generating flashcards.');
         setOpenSnackbar(true);
@@ -49,14 +58,13 @@ export default function Generate() {
   const handleCardClick = (id) => {
     setFlipped((prev) => ({
       ...prev,
-      [id]: !prev[id],
+      [id]: !prev[id], // Toggle the flipped state for the clicked card
     }))
   }
 
   const handleOpen = () => {
     setOpen(true);
   }
-
   const handleClose = () => {
     setOpen(false);
   }
@@ -68,33 +76,32 @@ export default function Generate() {
       return;
     }
 
-    const batch = writeBatch(db)
-    const userDocRef = doc(collection(db, 'users'), user.id)
-    const docSnap = await getDoc(userDocRef)
+    const batch = writeBatch(db);
+    const userDocRef = doc(collection(db, 'users'), user.id);
+    const docSnap = await getDoc(userDocRef);
 
     if (docSnap.exists()) {
-      const collections = docSnap.data().flashcards || []
+      const collections = docSnap.data().flashcards || [];
       if (collections.find((f) => f.name === name)) {
         setError("A collection with this name already exists.");
         setOpenSnackbar(true);
         return;
       } else {
-        collections.push({ name })
-        batch.set(userDocRef, { flashcards: collections }, { merge: true })
+        collections.push({ name });
+        batch.set(userDocRef, { flashcards: collections }, { merge: true });
       }
     } else {
-      batch.set(userDocRef, { flashcards: [{ name }] })
+      batch.set(userDocRef, { flashcards: [{ name }] });
     }
 
-    const colRef = collection(userDocRef, name)
+    const colRef = collection(userDocRef, name);
     flashcards.forEach((flashcard) => {
-      const cardDocRef = doc(colRef)
-      batch.set(cardDocRef, flashcard)
-    })
-
-    await batch.commit()
-    handleClose()
-    router.push('/flashcards')
+      const cardDocRef = doc(colRef);
+      batch.set(cardDocRef, flashcard);
+    });
+    await batch.commit();
+    handleClose();
+    router.push('/flashcards');
   }
 
   return (
@@ -190,8 +197,69 @@ export default function Generate() {
         <Box sx={{ mt: 4 }}>
           <Typography variant='h5' sx={{ fontWeight: 'bold', color: '#333', mb: 2 }}>Flashcards Preview</Typography>
           <Grid container spacing={3}>
-            {/* Flashcards Grid */}
-            {/* ... (existing code for displaying flashcards) */}
+            {flashcards.map((flashcard, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <Card sx={{ perspective: '1000px' }}>
+                  <CardActionArea onClick={() => handleCardClick(index)}>
+                    <CardContent
+                      sx={{
+                        position: 'relative',
+                        width: '100%',
+                        height: '200px',
+                        transformStyle: 'preserve-3d',
+                        transition: 'transform 0.6s',
+                        transform: flipped[index] ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                      }}
+                    >
+                      {/* Front Face */}
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          backfaceVisibility: 'hidden',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          backgroundColor: '#fff',
+                          borderRadius: '8px',
+                          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                        }}
+                      >
+                        <Typography variant='h6' component="div" sx={{ textAlign: 'center', padding: 2 }}>
+                          {flashcard.front}
+                        </Typography>
+                      </Box>
+
+                      {/* Back Face */}
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          backfaceVisibility: 'hidden',
+                          transform: 'rotateY(180deg)',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          backgroundColor: '#f0f0f0',
+                          borderRadius: '8px',
+                          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                        }}
+                      >
+                        <Typography variant='h6' component="div" sx={{ textAlign: 'center', padding: 2 }}>
+                          {flashcard.back}
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
           <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
             <Button 
@@ -207,10 +275,35 @@ export default function Generate() {
       )}
 
       {/* Save Dialog */}
-      {/* ... (existing code for dialog) */}
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Save Flashcards</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Please enter a name for your flashcards collection.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin='dense'
+            label='Collection Name'
+            type='text'
+            fullWidth
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            variant='outlined'
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={saveFlashcards}>Save</Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Error Snackbar */}
-      {/* ... (existing code for snackbar) */}
+      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={() => setOpenSnackbar(false)}>
+        <Alert onClose={() => setOpenSnackbar(false)} severity="error" sx={{ width: '100%' }}>
+          {error}
+        </Alert>
+      </Snackbar>
     </Container>
-  )
+  );
 }
