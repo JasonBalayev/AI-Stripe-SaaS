@@ -1,8 +1,7 @@
 # AI SaaS FlashSet 🤖
 
 
-**AI SaaS FlashSet** is an innovative AI-powered To-Do list application crafted to optimize task management through the strategic implementation of artificial intelligence. By leveraging modern web technologies such as React, Convex, TypeScript, and Clerk Authentication, AI-Convex provides users with an intuitive, secure, and highly efficient user experience. The application’s AI-driven features deliver intelligent, personalized task recommendations, enabling users to stay organized, prioritize effectively, and achieve their goals with ease.
-
+**AI SaaS FlashSet** is a sophisticated AI-driven software as a service (SaaS) application that facilitates seamless creation and management of flashcards based on user-generated prompts. By leveraging advanced AI algorithms, the platform delivers personalized flashcard sets tailored to the learning needs of each user. The application is currently in its testing phase, offering both basic and advanced features designed to enhance the learning experience. Despite being in development, the app aspires to become a comprehensive and engaging educational tool for learners.
 ## Live Demo
 
 Check out the live version of the app here: [**Check it Out Live**](https://jasonbalayev.dev/YourProjectLink)
